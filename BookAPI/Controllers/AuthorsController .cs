@@ -3,6 +3,9 @@ using BookAPI.Application.DTOs;
 using BookAPI.Application.Interfaces.Repositories;
 using BookAPI.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BookAPI.Controllers
 {
@@ -22,7 +25,7 @@ namespace BookAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuthorResponseDto>>> GetAllAuthors()
         {
-            var authors = await _authorRepository.GetAllAsync();
+            var authors = await _authorRepository.GetAllAsync(include: q => q.Include(a => a.BookAuthors).ThenInclude(ba => ba.Book));
             var authorDtos = _mapper.Map<IEnumerable<AuthorResponseDto>>(authors);
             return Ok(authorDtos);
         }
@@ -30,7 +33,7 @@ namespace BookAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AuthorResponseDto>> GetAuthorById(int id)
         {
-            var author = await _authorRepository.GetByIdAsync(id);
+            var author = await _authorRepository.GetByIdAsync(id, include: q => q.Include(a => a.BookAuthors).ThenInclude(ba => ba.Book));
             if (author == null)
             {
                 return NotFound();
@@ -80,6 +83,19 @@ namespace BookAPI.Controllers
 
             await _authorRepository.DeleteAsync(id);
             return NoContent();
+        }
+
+        // New action to get authors by a specific book ID
+        [HttpGet("by-book/{bookId}")]
+        public async Task<ActionResult<IEnumerable<AuthorResponseDto>>> GetAuthorsByBookId(int bookId)
+        {
+            var authors = await _authorRepository.GetAuthorsByBookIdAsync(bookId);
+            if (authors == null || !authors.Any())
+            {
+                return NotFound();
+            }
+            var authorDtos = _mapper.Map<IEnumerable<AuthorResponseDto>>(authors);
+            return Ok(authorDtos);
         }
     }
 }

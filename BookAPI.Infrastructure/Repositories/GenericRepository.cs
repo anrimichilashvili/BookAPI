@@ -1,10 +1,6 @@
 ﻿using BookAPI.Application.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace BookAPI.Infrastructure.Repositories
 {
@@ -50,5 +46,33 @@ namespace BookAPI.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+
+        public async Task<IEnumerable<T>> GetAllAsync(
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<T> GetByIdAsync(int id,
+    Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+        }
+
     }
 }
