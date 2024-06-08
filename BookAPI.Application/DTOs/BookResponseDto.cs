@@ -15,6 +15,7 @@ namespace BookAPI.Application.DTOs
         public double Rating { get; set; }
         public DateTime PublishedDate { get; set; }
         public bool IsBorrowed { get; set; }
+        public bool IsDeleted { get; set; } 
         public List<AuthorDto> Authors { get; set; }
     }
 }

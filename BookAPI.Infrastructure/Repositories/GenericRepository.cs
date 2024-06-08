@@ -37,15 +37,27 @@ namespace BookAPI.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+
         public async Task DeleteAsync(int id)
         {
             var entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
-                _dbSet.Remove(entity);
-                await _context.SaveChangesAsync();
+                var entityType = entity.GetType();
+                var isDeletedProperty = entityType.GetProperty("IsDeleted");
+                if (isDeletedProperty != null && isDeletedProperty.PropertyType == typeof(bool))
+                {
+                    isDeletedProperty.SetValue(entity, true);
+                    _context.Entry(entity).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Entity of type {entityType.Name} does not have a boolean IsDeleted property.");
+                }
             }
         }
+
 
 
         public async Task<IEnumerable<T>> GetAllAsync(

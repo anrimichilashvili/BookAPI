@@ -2,6 +2,7 @@
 using BookAPI.Application.DTOs;
 using BookAPI.Application.Interfaces.Repositories;
 using BookAPI.Domain.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookAPI.Controllers
@@ -24,8 +25,44 @@ namespace BookAPI.Controllers
         {
             var books = await _bookRepository.GetAllAsync();
             var bookDtos = _mapper.Map<IEnumerable<BookResponseDto>>(books);
+            foreach (var bookDto in bookDtos)
+            {
+                bookDto.Authors = bookDto.Authors?.Where(a => !a.IsDeleted).ToList();
+            }
+
             return Ok(bookDtos);
         }
+
+        [HttpPatch("{id}/borrow")]
+        public async Task<IActionResult> BorrowBook(int id)
+        {
+            var book = await _bookRepository.GetByIdAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            book.IsBorrowed = true;
+            await _bookRepository.UpdateAsync(book);
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/return")]
+        public async Task<IActionResult> ReturnBook(int id)
+        {
+            var book = await _bookRepository.GetByIdAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            book.IsBorrowed = false;
+            await _bookRepository.UpdateAsync(book);
+
+            return NoContent();
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<BookResponseDto>> GetBookById(int id)
@@ -35,9 +72,14 @@ namespace BookAPI.Controllers
             {
                 return NotFound();
             }
+
             var bookDto = _mapper.Map<BookResponseDto>(book);
+
+            bookDto.Authors = bookDto.Authors?.Where(a => !a.IsDeleted).ToList();
+
             return Ok(bookDto);
         }
+
 
         [HttpPost]
         public async Task<ActionResult<BookResponseDto>> CreateBook([FromBody] BookCreateDto bookCreateDto)

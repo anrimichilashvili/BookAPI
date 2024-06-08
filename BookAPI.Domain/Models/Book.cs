@@ -28,7 +28,7 @@ namespace BookAPI.Domain.Models
         [Required(ErrorMessage = "The PublishedDate field is required.")]
         public DateTime PublishedDate { get; set; }
         public bool IsBorrowed { get; set; } = false;
-
+        public bool IsDeleted { get; set; } = false;
         public ICollection<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>(); 
 
     }

@@ -47,7 +47,9 @@ namespace BookAPI.Application.Mappings
 
 
             CreateMap<Author, AuthorDto>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)); 
+
         }
     }
 }

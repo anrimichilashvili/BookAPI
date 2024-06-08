@@ -24,7 +24,7 @@ namespace BookAPI.Domain.Models
 
         [Required(ErrorMessage = "The BirthYear field is required.")]
         public DateTime BirthYear { get; set; }
-
+        public bool IsDeleted { get; set; } = false;
         public ICollection<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>(); 
 
     }
