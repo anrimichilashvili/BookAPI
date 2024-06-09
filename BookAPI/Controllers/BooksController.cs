@@ -25,10 +25,12 @@ namespace BookAPI.Controllers
         {
             var books = await _bookRepository.GetAllAsync();
             var bookDtos = _mapper.Map<IEnumerable<BookResponseDto>>(books);
-            foreach (var bookDto in bookDtos)
-            {
-                bookDto.Authors = bookDto.Authors?.Where(a => !a.IsDeleted).ToList();
-            }
+
+            //უნდა გამოჩნდეს ყველა ავტორი რაც ამ წიგნს ჰყოლია
+            //foreach (var bookDto in bookDtos)
+            //{
+            //    bookDto.Authors = bookDto.Authors?.Where(a => !a.IsDeleted).ToList();
+            //}
 
             return Ok(bookDtos);
         }
@@ -75,7 +77,7 @@ namespace BookAPI.Controllers
 
             var bookDto = _mapper.Map<BookResponseDto>(book);
 
-            bookDto.Authors = bookDto.Authors?.Where(a => !a.IsDeleted).ToList();
+            //bookDto.Authors = bookDto.Authors?.Where(a => !a.IsDeleted).ToList();
 
             return Ok(bookDto);
         }
